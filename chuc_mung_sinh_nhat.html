@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật Trần Yến My</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght=500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reset & Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #06050a;
+            font-family: 'Quicksand', sans-serif;
+            color: #ffffff;
+        }
+
+        /* --- Màn hình Mở Quà --- */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1c0e35 0%, #06050a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gift-box-wrapper {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gift-box-wrapper:hover {
+            transform: scale(1.05);
+        }
+
+        .gift-box {
+            font-size: 6rem;
+            animation: pulseGift 1.5s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            filter: drop-shadow(0 0 20px rgba(255, 117, 151, 0.6));
+        }
+
+        .click-text {
+            margin-top: 25px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ff7597;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 117, 151, 0.5);
+            animation: blinkText 1.5s infinite;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* --- Giao diện Chính --- */
+        #main-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 2s ease;
+            z-index: 10;
+        }
+
+        #main-content.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .card-container {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .animate-text {
+            display: inline-block;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .animate-text span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateX(-60px) scale(0.3) rotate(-15deg);
+            filter: blur(15px);
+            animation: tikTokFlyIn 0.7s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 10px #ff7597, 0 0 20px #ff7597, 0 0 40px #ff2a6d;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .name {
+            font-family: 'Pacifico', cursive;
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            line-height: 1.3;
+            color: #ffde7d;
+            text-shadow: 0 0 10px rgba(255,117,151,0.8), 0 0 20px rgba(181,123,238,0.8), 0 0 30px #ff2a6d;
+            animation: neonPulse 2s ease-in-out infinite alternate;
+        }
+
+        /* --- Khung Chứa Tệp GIF Gõ Bàn Phím --- */
+        #typing-container {
+            display: none; /* Mặc định ẩn, kích hoạt bằng JS */
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .typing-gif-img {
+            width: 70px; /* Độ rộng vừa vặn, dễ thương */
+            height: auto;
+            filter: drop-shadow(0 0 8px rgba(255, 117, 151, 0.7));
+        }
+
+        .sub-wish {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+            text-shadow: 0 0 8px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .sub-wish.show {
+            animation: fadeInUp 1.5s forwards ease;
+        }
+
+        .floating-element {
+            position: absolute;
+            bottom: -50px;
+            pointer-events: none;
+            z-index: 4;
+            will-change: transform, opacity;
+            animation: floatUp 4s linear forwards;
+            filter: drop-shadow(0 0 6px rgba(255, 117, 151, 0.5));
+        }
+
+        @keyframes pulseGift {
+            0% { transform: scale(0.95); filter: drop-shadow(0 0 15px rgba(255, 117, 151, 0.5)); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 35px rgba(255, 117, 151, 0.9)); }
+        }
+
+        @keyframes blinkText {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes tikTokFlyIn {
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1) rotate(0deg);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes neonPulse {
+            0% { text-shadow: 0 0 10px rgba(255,117,151,0.6), 0 0 20px rgba(181,123,238,0.4); }
+            100% { text-shadow: 0 0 20px rgba(255,117,151,0.9), 0 0 35px rgba(181,123,238,0.7), 0 0 45px #ff2a6d; }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(-110vh) translateX(var(--sway-x)) rotate(var(--rotate-deg));
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 1.8rem; margin-bottom: 10px; }
+            .name { font-size: 2.8rem; margin-bottom: 20px; }
+            .sub-wish { font-size: 0.95rem; padding: 0 15px; }
+            .gift-box { font-size: 4.5rem; }
+            .click-text { font-size: 1rem; }
+            .typing-gif-img { width: 55px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nhạc nền cục bộ -->
+    <audio id="bg-music" src="nhac.mp3" loop></audio>
+
+    <div id="overlay">
+        <div class="gift-box-wrapper" onclick="openGift()">
+            <div class="gift-box">🎁</div>
+        </div>
+        <div class="click-text">Chạm vào hộp quà để mở điều bất ngờ ✨</div>
+    </div>
+
+    <div id="main-content">
+        <canvas id="starfield"></canvas>
+
+        <div class="card-container">
+            <h1 class="title animate-text" id="title-text">Chúc Mừng Sinh Nhật</h1>
+            <h2 class="name animate-text" id="name-text">Trần Yến My</h2>
+            
+            <!-- KHUNG CHỨA GIF GÕ CHỮ TRONG LÚC CHỜ (4000ms) -->
+            <div id="typing-container">
+                <img class="typing-gif-img" src="typing.gif" alt="Đang gõ lời chúc...">
+            </div>
+            
+            <p class="sub-wish" id="wish-text">Chúc em luôn xinh đẹp, rạng rỡ, tràn ngập niềm vui và hạnh phúc trong tuổi mới! Tuổi mới thật ngọt ngào và đạt được mọi ước mơ nhé! ❤️🌸</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.opacity = Math.random();
+                this.fadeSpeed = Math.random() * 0.015 + 0.005;
+                this.direction = Math.random() > 0.5 ? 1 : -1;
+            }
+            update() {
+                this.opacity += this.fadeSpeed * this.direction;
+                if (this.opacity >= 1 || this.opacity <= 0.1) {
+                    this.direction *= -1;
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const maxStars = window.innerWidth < 768 ? 80 : 180;
+        for (let i = 0; i < maxStars; i++) {
+            stars.push(new Star());
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        function setupTextAnimation(elementId, baseDelay = 0) {
+            const el = document.getElementById(elementId);
+            const text = el.innerText;
+            el.innerHTML = '';
+            
+            const characters = text.split('');
+            characters.forEach((char, index) => {
+                const span = document.createElement('span');
+                if (char === ' ') {
+                    span.innerHTML = '&nbsp;';
+                } else {
+                    span.innerText = char;
+                }
+                span.style.animationDelay = `${baseDelay + (index * 0.08)}s`;
+                el.appendChild(span);
+            });
+            
+            return baseDelay + (characters.length * 0.08);
+        }
+
+        const cuteIcons = ['❤️', '💖', '✨', '🌸', '🧸', '💕', '🥰', '🍿', '🧁', '🌟'];
+        
+        function createFloatingIcon(isInitialExplosion = false) {
+            const icon = document.createElement('div');
+            icon.classList.add('floating-element');
+            icon.innerText = cuteIcons[Math.floor(Math.random() * cuteIcons.length)];
+            
+            icon.style.left = Math.random() * 100 + 'vw';
+            
+            if (isInitialExplosion) {
+                icon.style.left = (Math.random() * 60 + 20) + 'vw';
+                icon.style.bottom = Math.random() * 20 + 'vh';
+            }
+            
+            const baseSize = window.innerWidth < 768 ? 16 : 24;
+            icon.style.fontSize = (Math.random() * 15 + baseSize) + 'px';
+            
+            const swayX = (Math.random() * 300 - 150) + 'px';
+            const rotateDeg = (Math.random() * 360 + 180) + 'deg';
+            icon.style.setProperty('--sway-x', swayX);
+            icon.style.setProperty('--rotate-deg', rotateDeg);
+            
+            const duration = Math.random() * 2.5 + 3.5;
+            icon.style.animationDuration = duration + 's';
+            
+            document.getElementById('main-content').appendChild(icon);
+            
+            setTimeout(() => {
+                icon.remove();
+            }, duration * 1000);
+        }
+
+        let iconInterval;
+        function openGift() {
+            const music = document.getElementById('bg-music');
+            music.play().catch(err => console.log("Lỗi phát nhạc: ", err));
+
+            const overlay = document.getElementById('overlay');
+            overlay.style.opacity = '0';
+            overlay.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 1200);
+
+            const mainContent = document.getElementById('main-content');
+            mainContent.classList.add('active');
+
+            animateStars();
+
+            const titleEndDelay = setupTextAnimation('title-text', 0.5);
+            const nameEndDelay = setupTextAnimation('name-text', titleEndDelay + 0.2);
+
+            // 1. HIỂN THỊ GIF GÕ CHỮ NGAY SAU KHI CHỮ "TRẦN YẾN MY" XUẤT HIỆN XONG
+            setTimeout(() => {
+                document.getElementById('typing-container').style.display = 'block';
+            }, nameEndDelay * 1000);
+
+            // 2. CHỜ 4000ms (4 GIÂY): ẨN GIF GÕ CHỮ VÀ HIỂN THỊ LỜI CHÚC CHÍNH THỨC
+            setTimeout(() => {
+                document.getElementById('typing-container').style.display = 'none'; // Ẩn GIF đi
+                document.getElementById('wish-text').classList.add('show');       // Hiện lời chúc
+            }, nameEndDelay * 1000 + 5000);
+
+            for (let i = 0; i < 35; i++) {
+                setTimeout(() => {
+                    createFloatingIcon(true);
+                }, Math.random() * 600);
+            }
+
+            iconInterval = setInterval(() => {
+                createFloatingIcon(false);
+            }, 250);
+        }
+    </script>
+</body>
+</html>
